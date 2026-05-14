@@ -155,9 +155,11 @@ class TestEditorHistory(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.editor.add_action("   ", "nuevo estado")
 
-    def test_add_action_sin_cambio_en_estado_lanza_error(self):
-        with self.assertRaises(ValueError):
-            self.editor.add_action("Sin cambio", "estado inicial")
+    def test_add_action_sin_cambio_en_estado_se_permite(self):
+        # FIX: registrar una acción descriptiva sin cambiar el texto es válido
+        action = self.editor.add_action("Acción sin cambio", "estado inicial")
+        self.assertIsNotNone(action)
+        self.assertTrue(self.editor.can_undo)
 
     # ── undo ─────────────────────────────────────────────────────────────────
 

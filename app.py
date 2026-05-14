@@ -260,11 +260,12 @@ class EditorApp(tk.Tk):
         bar.pack(fill="x", side="bottom")
 
         self._status_var = tk.StringVar(value="Listo.")
-        tk.Label(
+        self._status_label = tk.Label(
             bar, textvariable=self._status_var,
             bg=COLORS["surface2"], fg=COLORS["text_muted"],
             font=("Courier New", 8),
-        ).pack(side="left", padx=14)
+        )
+        self._status_label.pack(side="left", padx=14)
 
         self._counts_var = tk.StringVar()
         tk.Label(
@@ -299,14 +300,23 @@ class EditorApp(tk.Tk):
         new_state = self._text.get("1.0", "end-1c")
         atype = self._type_var.get()
 
+        # FIX: única validación necesaria es descripción vacía.
+        # Se eliminó el bloqueo por "sin cambio de estado", que impedía
+        # registrar acciones descriptivas cuando el texto no había cambiado.
         if not desc:
-            self._flash_status("⚠  Escribe una descripción antes de registrar.", COLORS["accent_undo"])
+            self._flash_status(
+                "⚠  Escribe una descripción antes de registrar.",
+                COLORS["danger"],
+            )
             return
 
         try:
             action = self._history.add_action(desc, new_state, atype)
             self._desc_var.set("")
-            self._flash_status(f"✔  Acción registrada: {action.description!r}", COLORS["accent_redo"])
+            self._flash_status(
+                f"✔  Acción registrada: {action.description!r}",
+                COLORS["accent_redo"],
+            )
         except ValueError as e:
             self._flash_status(f"⚠  {e}", COLORS["danger"])
 
@@ -377,8 +387,13 @@ class EditorApp(tk.Tk):
         )
 
     def _flash_status(self, msg: str, color: str = COLORS["text_muted"]):
+        """Muestra un mensaje en la barra de estado con el color indicado."""
         self._status_var.set(msg)
-        self.after(3500, lambda: self._status_var.set("Listo."))
+        self._status_label.configure(fg=color)
+        self.after(3500, lambda: (
+            self._status_var.set("Listo."),
+            self._status_label.configure(fg=COLORS["text_muted"]),
+        ))
 
 
 if __name__ == "__main__":

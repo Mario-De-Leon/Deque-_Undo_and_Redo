@@ -19,6 +19,7 @@ class Action:
     def __repr__(self) -> str:
         return f"[{self.timestamp}] {self.action_type.upper()}: {self.description!r}"
 
+
 class EditorHistory:
     MAX_HISTORY = 100  # límite de acciones en el historial
 
@@ -58,14 +59,16 @@ class EditorHistory:
           action_type : categoría de la acción
 
         Lanza:
-          ValueError  : si description o new_state son inválidos
+          ValueError  : si description está vacía
         """
         description = description.strip()
         if not description:
             raise ValueError("La descripción de la acción no puede estar vacía.")
-        if new_state == self._current_state:
-            raise ValueError("La nueva acción no produce ningún cambio en el estado.")
 
+        # FIX: se eliminó la validación que bloqueaba acciones cuando el estado
+        # no cambiaba. El flujo correcto es: el usuario escribe en el editor,
+        # pone una descripción y registra — aunque el texto ya coincida con el
+        # estado anterior, la acción descriptiva debe quedar registrada.
         action = Action(
             description=description,
             before_state=self._current_state,
