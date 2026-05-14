@@ -10,7 +10,6 @@ from deque import Deque
 
 @dataclass
 class Action:
-    """Representa una acción registrada en el editor."""
     description: str
     before_state: str          # estado del texto ANTES de la acción
     after_state: str           # estado del texto DESPUÉS de la acción
@@ -20,28 +19,7 @@ class Action:
     def __repr__(self) -> str:
         return f"[{self.timestamp}] {self.action_type.upper()}: {self.description!r}"
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Sistema principal
-# ──────────────────────────────────────────────────────────────────────────────
-
 class EditorHistory:
-    """
-    Sistema de historial de edición con soporte para undo y redo.
-
-    Usa DOS instancias de Deque:
-      - _undo_stack : acciones que pueden deshacerse (historial hacia atrás)
-      - _redo_stack : acciones que pueden rehacerse (historial hacia adelante)
-
-    Estrategia de undo/redo:
-      * Al registrar una nueva acción se limpia el redo_stack (comportamiento
-        estándar de editores de texto: una nueva acción borra el futuro).
-      * undo() mueve la acción del tope de _undo_stack al tope de _redo_stack
-        y restaura el before_state.
-      * redo() mueve la acción del tope de _redo_stack al tope de _undo_stack
-        y restaura el after_state.
-    """
-
     MAX_HISTORY = 100  # límite de acciones en el historial
 
     def __init__(self, initial_state: str = ""):
